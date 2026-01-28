@@ -1,9 +1,12 @@
-fastapi>=0.109.0
-uvicorn>=0.27.0
-redis>=5.0.0
-pillow>=10.2.0
-fal-client>=0.4.0
-httpx>=0.26.0
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
-python-multipart>=0.0.6
+# Shared dependencies (pinned versions for consistency across projects)
+fastapi==0.109.0
+uvicorn==0.27.0
+redis==5.0.1
+httpx==0.26.0
+pillow==10.2.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+
+# Project-specific: fal.ai integration
+fal-client==0.5.6
