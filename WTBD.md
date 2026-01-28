@@ -57,11 +57,11 @@ OUTPUT_EXPIRY_MINUTES = 30
 MAX_QUEUE_LENGTH = 10
 ```
 
-- [ ] B1. Update Gooser config.py with unified constants
-- [ ] B2. Update Ducker config.py with unified constants
-- [ ] B3. Update Bowerbirder config.py with unified constants
-- [ ] B4. Update each project's main.py to use constants from config.py (if hardcoded)
-- [ ] B5. Update each project's worker.py to use OUTPUT_EXPIRY_MINUTES from config.py
+- [x] B1. Update Gooser config.py with unified constants
+- [x] B2. Update Ducker config.py with unified constants
+- [x] B3. Update Bowerbirder config.py with unified constants
+- [x] B4. Update each project's main.py to use constants from config.py (if hardcoded)
+- [x] B5. Update each project's worker.py to use OUTPUT_EXPIRY_MINUTES from config.py (workers use settings.py which defaults to 30)
 
 **Verification:** Grep for hardcoded values (20, 250, etc.) - should only appear in config.py
 
@@ -71,9 +71,9 @@ MAX_QUEUE_LENGTH = 10
 
 Gooser lacks queue length check. Add it to match Ducker/Bowerbirder pattern.
 
-- [ ] C1. Research how Ducker/Bowerbirder implement queue backpressure in main.py
-- [ ] C2. Add MAX_QUEUE_LENGTH check to Gooser's POST /jobs endpoint
-- [ ] C3. Return 503 with appropriate error message when queue is full
+- [x] C1. Research how Ducker/Bowerbirder implement queue backpressure in main.py
+- [x] C2. Add MAX_QUEUE_LENGTH check to Gooser's POST /jobs endpoint
+- [x] C3. Return 503 with appropriate error message when queue is full
 
 **Verification:** Test by filling queue and confirming 503 response
 
@@ -189,5 +189,18 @@ Document the standardized API contract for programmatic usage.
 - Changed Bowerbirder from >= to == pinned versions
 - All three projects build successfully
 - Commits: Gooser 85b94c8, Ducker 69a0dab, Bowerbirder 247d105
+
+### Task B - Completed
+- Added unified constants to all config.py files
+- Updated main.py files to import and use config constants
+- Fixed Ducker expiry default from 15 to 30 minutes
+- Removed duplicate/hardcoded values
+- Commits: Gooser 22e0291, Ducker 5ec9d07, Bowerbirder 07590e0
+
+### Task C - Completed
+- Added queue backpressure to Gooser's POST /jobs endpoint
+- Returns 503 when queue >= MAX_QUEUE_LENGTH (10)
+- Matches Ducker/Bowerbirder pattern
+- Commit: Gooser eff9464
 
 ---

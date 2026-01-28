@@ -106,15 +106,13 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/styles")
-def list_styles():
+@app.get("/options")
+def list_options():
     """List available style presets"""
-    return {
-        "styles": [
-            {"id": key, "name": preset["name"]}
-            for key, preset in STYLE_PRESETS.items()
-        ]
-    }
+    return [
+        {"id": key, "name": preset["name"]}
+        for key, preset in STYLE_PRESETS.items()
+    ]
 
 
 @app.get("/aspect-ratios")

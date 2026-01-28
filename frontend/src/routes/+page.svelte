@@ -42,6 +42,7 @@
 	let imageExpiresAt: string = $state('');
 	let uppy: UppyInstance | null = $state(null);
 	let totalFileSize: number = $state(0);
+	let styles: StylePreset[] = $state([]);
 
 	// Track object URLs we create so we can revoke them
 	let createdObjectUrls: Map<string, string> = new Map();
@@ -59,13 +60,6 @@
 	const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 	const MIN_IMAGES = 2;
 	const MAX_IMAGES = 6;
-
-	// Style presets
-	const styles: StylePreset[] = [
-		{ id: 'fridge', name: 'On the Fridge' },
-		{ id: 'scrapbook', name: 'Old Scrapbook' },
-		{ id: 'clean', name: 'Clean' }
-	];
 
 	const aspectRatios = [
 		{ value: '16:9', label: 'Landscape', icon: 'landscape' },
@@ -144,6 +138,26 @@
 	}
 
 	onMount(async () => {
+		// Fetch style options from API
+		try {
+			const response = await fetch(`${API_URL}/options`);
+			if (response.ok) {
+				styles = await response.json();
+				// Set default style to first option if available
+				if (styles.length > 0 && !selectedStyle) {
+					selectedStyle = styles[0].id;
+				}
+			}
+		} catch (error) {
+			console.error('Failed to fetch style options:', error);
+			// Fallback to hardcoded styles if API fails
+			styles = [
+				{ id: 'fridge', name: 'On the Fridge' },
+				{ id: 'scrapbook', name: 'Old Scrapbook' },
+				{ id: 'clean', name: 'Clean' }
+			];
+		}
+
 		// Dynamic import for Uppy (client-side only)
 		const Uppy = (await import('@uppy/core')).default;
 		const Dashboard = (await import('@uppy/dashboard')).default;
