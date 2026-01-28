@@ -96,7 +96,7 @@ class JobStatus(BaseModel):
     job_id: str
     status: str
     status_detail: Optional[str] = None
-    image_url: Optional[str] = None
+    output_url: Optional[str] = None
     expires_at: Optional[str] = None
     error: Optional[str] = None
 
@@ -219,7 +219,7 @@ def get_job_status(job_id: str):
     )
 
     if job["status"] == "completed":
-        response.image_url = job.get("image_url")
+        response.output_url = job.get("output_url")
         response.expires_at = job.get("expires_at")
     elif job["status"] == "failed":
         response.error = job.get("error")

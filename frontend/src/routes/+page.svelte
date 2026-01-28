@@ -343,7 +343,7 @@
 			if (job.status === 'completed') {
 				status = 'Collage ready!';
 				statusType = 'success';
-				imageUrl = job.image_url;
+				imageUrl = job.output_url;
 				imageExpiresAt = job.expires_at;
 				saveImageToStorage(imageUrl, imageExpiresAt);
 				startExpiryTimer();

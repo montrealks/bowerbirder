@@ -89,11 +89,11 @@ Standardize the "list options" endpoint across all projects:
 | Ducker: `/tracks` | `/options` |
 | Bowerbirder: `/styles` | `/options` |
 
-- [ ] D1. Rename Gooser `/presets` to `/options`, update response format
-- [ ] D2. Rename Ducker `/tracks` to `/options`, update response format
-- [ ] D3. Rename Bowerbirder `/styles` to `/options`, update response format
-- [ ] D4. Update each frontend to call `/options` instead of old endpoint
-- [ ] D5. Ensure response format is consistent: `[{"id": "...", "name": "..."}]`
+- [x] D1. Rename Gooser `/presets` to `/options`, update response format
+- [x] D2. Rename Ducker `/tracks` to `/options`, update response format
+- [x] D3. Rename Bowerbirder `/styles` to `/options`, update response format
+- [x] D4. Update each frontend to call `/options` instead of old endpoint (Gooser N/A - different workflow)
+- [x] D5. Ensure response format is consistent: `[{"id": "...", "name": "..."}]`
 
 **Verification:** `curl /options` returns same schema for all three projects
 
@@ -202,5 +202,12 @@ Document the standardized API contract for programmatic usage.
 - Returns 503 when queue >= MAX_QUEUE_LENGTH (10)
 - Matches Ducker/Bowerbirder pattern
 - Commit: Gooser eff9464
+
+### Task D - Completed
+- Renamed /presets → /options (Gooser), /tracks → /options (Ducker), /styles → /options (Bowerbirder)
+- All return consistent format: `[{"id": "...", "name": "..."}]`
+- Updated Ducker and Bowerbirder frontends to fetch from /options
+- Gooser frontend unchanged (different workflow, no preset selection)
+- Commits: Gooser 941d392, Ducker 477f7e7, Bowerbirder 17e9179
 
 ---

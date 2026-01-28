@@ -204,17 +204,17 @@ def process_job(job_id: str):
         # Update job status
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=IMAGE_EXPIRY_MINUTES)
         expires_at_iso = expires_at.isoformat().replace("+00:00", "Z")
-        image_url = f"{API_BASE_URL}/output/{job_id}.png"
+        output_url = f"{API_BASE_URL}/output/{job_id}.png"
 
         update_job_status(
             job_id,
             "completed",
-            image_url=image_url,
+            output_url=output_url,
             expires_at=expires_at_iso,
             status_detail=None
         )
 
-        logger.info(f"[{job_id}] Job completed successfully - {image_url}")
+        logger.info(f"[{job_id}] Job completed successfully - {output_url}")
 
     except Exception as e:
         error_msg = str(e)

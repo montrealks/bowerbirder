@@ -266,7 +266,7 @@ curl http://localhost:8000/aspect-ratios
 {
   "job_id": "uuid",
   "status": "completed",
-  "image_url": "http://localhost:8000/output/uuid.png",
+  "output_url": "http://localhost:8000/output/uuid.png",
   "expires_at": "2026-01-28T15:30:00Z"
 }
 ```
