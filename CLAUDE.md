@@ -314,15 +314,23 @@ Based on Ducker's UI with these changes:
 
 ### VPS (bowerbirder.pressive.in)
 
-Follow same pattern as Ducker:
-
+**Quick deploy using script:**
 ```bash
-# Sync files
-rsync -avz app/ docker-compose.yml docker-compose.prod.yml vps:bowerbirder/
-rsync -avz frontend/src/ vps:bowerbirder/frontend/src/
+./deploy.sh            # Backend only
+./deploy.sh --frontend # Backend + frontend rebuild
+```
 
-# Rebuild and restart
-ssh vps "cd bowerbirder && docker compose -f docker-compose.prod.yml down && docker compose -f docker-compose.prod.yml up -d --build"
+**Manual deploy:**
+```bash
+# Push changes to GitHub
+git add . && git commit -m "message" && git push
+
+# On VPS: pull and rebuild
+ssh vps "cd ~/bowerbirder && git pull && docker compose -f docker-compose.prod.yml up -d --build"
+ssh vps "docker network connect caddy bowerbirder-api-1"
+
+# If frontend changed:
+ssh vps "cd ~/bowerbirder/frontend && npm run build && cp -r build/* /srv/bowerbirder/frontend/"
 ```
 
 ## Implementation Checklist
