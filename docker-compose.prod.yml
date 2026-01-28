@@ -1,0 +1,64 @@
+# Production Docker Compose
+# Usage: docker compose -f docker-compose.prod.yml up -d
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+      - job_images:/app/job_images
+    environment:
+      - ENVIRONMENT=production
+      - REDIS_URL=redis://redis:6379
+      - OUTPUT_DIR=/app/output
+      - JOB_IMAGES_DIR=/app/job_images
+      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
+      - API_BASE_URL=${API_BASE_URL:-https://bowerbirder.pressive.in}
+      - API_ALLOWED_IPS=${API_ALLOWED_IPS:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: python -m app.worker
+    volumes:
+      - ./output:/app/output
+      - job_images:/app/job_images
+    environment:
+      - ENVIRONMENT=production
+      - REDIS_URL=redis://redis:6379
+      - OUTPUT_DIR=/app/output
+      - JOB_IMAGES_DIR=/app/job_images
+      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
+      - API_BASE_URL=${API_BASE_URL:-https://bowerbirder.pressive.in}
+      - FAL_KEY=${FAL_KEY}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  job_images:
+  redis_data:

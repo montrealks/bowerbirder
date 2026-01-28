@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Create output directory
-RUN mkdir -p /app/output
+# Create directories
+RUN mkdir -p /app/output /app/job_images
 
 EXPOSE 8000
 

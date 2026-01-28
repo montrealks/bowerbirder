@@ -20,7 +20,13 @@ frontend/build/
 .env
 .env.local
 
-# Output files (generated videos)
+# Claude Code local config
+.claude/
+
+# Output files (generated images)
 output/
-*.mp4
+*.png
 frontend/.env
+
+# Job images temp directory
+job_images/

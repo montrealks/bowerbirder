@@ -8,7 +8,7 @@ Style presets, output dimensions, and limits.
 STYLE_PRESETS = {
     "fridge": {
         "name": "On the Fridge",
-        "prompt": "Arrange these photos as if pinned with colorful magnets on a teal refrigerator door, slightly tilted and overlapping naturally, casual family photo display"
+        "prompt": "Tightly clustered photos pinned with colorful fruit-shaped magnets on a teal refrigerator door, photos overlapping each other significantly, filling most of the frame with minimal background visible, cozy family photo collage"
     },
     "scrapbook": {
         "name": "Old Scrapbook",

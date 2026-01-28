@@ -1,0 +1,435 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--cream: #FEF3E2;
+	--mint: #A8E6CF;
+	--coral: #FF6B6B;
+	--sky: #4ECDC4;
+	--sun: #FFE66D;
+	--lavender: #DDA0DD;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+	background: var(--cream);
+	color: #000;
+	min-height: 100vh;
+}
+
+.container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 2rem;
+}
+
+h1 {
+	font-size: 2.5rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: -1px;
+	margin-bottom: 0.25rem;
+}
+
+.subtitle {
+	color: #666;
+	margin-bottom: 2rem;
+	font-size: 1rem;
+}
+
+.section {
+	background: #fff;
+	border: 3px solid #000;
+	box-shadow: 6px 6px 0px 0px #000;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+}
+
+.section-title {
+	font-size: 1rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+/* Style buttons grid */
+.styles-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+	gap: 0.5rem;
+}
+
+.style-btn {
+	background: #fff;
+	border: 2px solid #000;
+	color: #000;
+	padding: 0.6rem 0.5rem;
+	cursor: pointer;
+	transition: all 0.1s;
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-align: center;
+	box-shadow: 3px 3px 0px 0px #000;
+}
+
+.style-btn:hover {
+	transform: translate(1px, 1px);
+	box-shadow: 2px 2px 0px 0px #000;
+}
+
+.style-btn.selected {
+	background: var(--sun);
+	transform: translate(3px, 3px);
+	box-shadow: none;
+}
+
+.generate-btn {
+	width: 100%;
+	padding: 1rem;
+	font-size: 1.1rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	background: var(--coral);
+	border: 3px solid #000;
+	color: #000;
+	cursor: pointer;
+	box-shadow: 6px 6px 0px 0px #000;
+	transition: all 0.1s;
+}
+
+.generate-btn:hover {
+	transform: translate(2px, 2px);
+	box-shadow: 4px 4px 0px 0px #000;
+}
+
+.generate-btn:active {
+	transform: translate(6px, 6px);
+	box-shadow: none;
+}
+
+.generate-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.generate-btn.generating {
+	background: var(--sun);
+	cursor: wait;
+	animation: pulse 1.5s ease-in-out infinite;
+}
+
+.generate-btn.error {
+	background: var(--coral);
+}
+
+.generate-btn.success {
+	background: var(--mint);
+}
+
+.btn-status {
+	display: block;
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.7; }
+}
+
+.status {
+	margin-top: 1.5rem;
+	padding: 1rem;
+	background: #fff;
+	border: 2px solid #000;
+	text-align: center;
+	font-weight: 600;
+}
+
+.status.error {
+	background: var(--coral);
+}
+
+.status.success {
+	background: var(--mint);
+}
+
+.image-preview {
+	margin-top: 1.5rem;
+	border: 3px solid #000;
+	box-shadow: 6px 6px 0px 0px #000;
+	background: #fff;
+}
+
+.image-preview img {
+	max-width: 100%;
+	max-height: 70vh;
+	display: block;
+	margin: 0 auto;
+	background: #000;
+}
+
+.image-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	padding: 0.75rem;
+	background: #fff;
+	border-top: 2px solid #000;
+}
+
+.download-link {
+	color: var(--sky);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.download-link:hover {
+	text-decoration: underline;
+}
+
+.expiry-timer {
+	color: #666;
+	font-size: 0.85rem;
+	padding: 0.25rem 0.5rem;
+	background: var(--cream);
+	border-radius: 4px;
+}
+
+.clear-btn {
+	background: none;
+	border: 2px solid #999;
+	padding: 0.25rem 0.75rem;
+	border-radius: 4px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	color: #666;
+}
+
+.clear-btn:hover {
+	border-color: var(--coral);
+	color: var(--coral);
+}
+
+.image-count {
+	color: #666;
+	font-size: 0.85rem;
+	font-weight: 400;
+}
+
+/* Settings */
+.setting-group {
+	margin-bottom: 1rem;
+}
+
+.setting-label {
+	display: block;
+	font-weight: 600;
+	font-size: 0.9rem;
+	margin-bottom: 0.5rem;
+}
+
+.aspect-ratio-buttons {
+	display: flex;
+	gap: 0.75rem;
+	align-items: flex-end;
+}
+
+.aspect-btn {
+	background: #fff;
+	border: 2px solid #000;
+	padding: 0.75rem;
+	cursor: pointer;
+	transition: all 0.1s;
+	box-shadow: 3px 3px 0px 0px #000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #000;
+}
+
+.aspect-btn:hover {
+	transform: translate(1px, 1px);
+	box-shadow: 2px 2px 0px 0px #000;
+}
+
+.aspect-btn.selected {
+	background: var(--sun);
+	transform: translate(3px, 3px);
+	box-shadow: none;
+}
+
+.aspect-btn svg {
+	display: block;
+}
+
+/* Uppy overrides for Neubrutalism */
+.uppy-Dashboard {
+	background: #fff !important;
+	border: none !important;
+	border-radius: 0 !important;
+	font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace !important;
+}
+
+.uppy-Dashboard-inner {
+	border-radius: 0 !important;
+	background: #fff !important;
+	border: none !important;
+}
+
+.uppy-Dashboard-innerWrap {
+	border-radius: 0 !important;
+}
+
+.uppy-Dashboard-AddFiles {
+	border: 3px dashed #000 !important;
+	border-radius: 0 !important;
+	background: var(--cream) !important;
+}
+
+.uppy-Dashboard-AddFiles-title {
+	color: #000 !important;
+	font-weight: 700 !important;
+	font-family: inherit !important;
+}
+
+.uppy-Dashboard-browse {
+	color: var(--coral) !important;
+	font-weight: 700 !important;
+}
+
+.uppy-Dashboard-note {
+	color: #666 !important;
+	font-family: inherit !important;
+}
+
+/* File items */
+.uppy-Dashboard-Item {
+	border: 2px solid #000 !important;
+	border-radius: 0 !important;
+	background: #fff !important;
+}
+
+.uppy-Dashboard-Item-preview {
+	border-radius: 0 !important;
+}
+
+.uppy-Dashboard-Item-previewInnerWrap {
+	border-radius: 0 !important;
+	background: var(--cream) !important;
+}
+
+.uppy-Dashboard-Item-name {
+	font-family: inherit !important;
+	font-weight: 600 !important;
+	color: #000 !important;
+}
+
+.uppy-Dashboard-Item-statusSize {
+	color: #666 !important;
+	font-family: inherit !important;
+}
+
+/* Top bar */
+.uppy-DashboardContent-bar {
+	background: #fff !important;
+	border-bottom: 2px solid #000 !important;
+	border-radius: 0 !important;
+}
+
+.uppy-DashboardContent-title {
+	color: #000 !important;
+	font-family: inherit !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	font-size: 0.85rem !important;
+}
+
+.uppy-DashboardContent-addMore {
+	color: #000 !important;
+	background: var(--mint) !important;
+	border: 2px solid #000 !important;
+	border-radius: 0 !important;
+	font-family: inherit !important;
+	font-weight: 600 !important;
+	padding: 0.25rem 0.5rem !important;
+}
+
+.uppy-DashboardContent-addMore:hover {
+	background: var(--sky) !important;
+}
+
+.uppy-DashboardContent-addMoreCaption {
+	font-family: inherit !important;
+}
+
+/* Progress */
+.uppy-Dashboard-progressindicators {
+	border-radius: 0 !important;
+}
+
+/* Drop hint */
+.uppy-Dashboard-dropFilesHereHint {
+	background: var(--sun) !important;
+	border: 3px dashed #000 !important;
+	border-radius: 0 !important;
+	color: #000 !important;
+	font-weight: 700 !important;
+	font-family: inherit !important;
+}
+
+/* File list scrollbar */
+.uppy-Dashboard-files {
+	background: #fff !important;
+}
+
+/* Capacity meter */
+.capacity-bar-container {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	margin-top: 1rem;
+	padding: 0.75rem;
+	background: var(--cream);
+	border: 2px solid #000;
+}
+
+.capacity-bar {
+	flex: 1;
+	height: 12px;
+	background: #fff;
+	border: 2px solid #000;
+	overflow: hidden;
+}
+
+.capacity-fill {
+	height: 100%;
+	background: var(--mint);
+	transition: width 0.2s ease-out;
+}
+
+.capacity-bar.over-capacity .capacity-fill {
+	background: var(--coral);
+}
+
+.capacity-text {
+	font-size: 0.85rem;
+	font-weight: 600;
+	white-space: nowrap;
+	min-width: 80px;
+	text-align: right;
+}
+
+.capacity-text.over-capacity {
+	color: var(--coral);
+}

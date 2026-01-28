@@ -328,37 +328,37 @@ ssh vps "cd bowerbirder && docker compose -f docker-compose.prod.yml down && doc
 ## Implementation Checklist
 
 ### Phase 1: Project Setup
-- [ ] Copy Ducker's docker-compose.yml and adapt
-- [ ] Copy Ducker's Dockerfile and adapt
-- [ ] Create requirements.txt (fastapi, redis, pillow, fal-client, httpx)
-- [ ] Create .env.example
-- [ ] Copy frontend structure from Ducker
+- [x] Copy Ducker's docker-compose.yml and adapt
+- [x] Copy Ducker's Dockerfile and adapt
+- [x] Create requirements.txt (fastapi, redis, pillow, fal-client, httpx)
+- [x] Create .env.example
+- [x] Copy frontend structure from Ducker
 
 ### Phase 2: Backend
-- [ ] Create app/config.py with style presets and constants
-- [ ] Create app/main.py with FastAPI endpoints
-- [ ] Create app/worker.py with image optimization and fal.ai integration
-- [ ] Test API locally
+- [x] Create app/config.py with style presets and constants
+- [x] Create app/main.py with FastAPI endpoints
+- [x] Create app/worker.py with image optimization and fal.ai integration
+- [x] Test API locally (endpoints work, job processing works, fal.ai integration needs FAL_KEY)
 
 ### Phase 3: Frontend
-- [ ] Adapt +page.svelte for collage UI
-- [ ] Update section 2 from tracks to styles
-- [ ] Change image limit from 20 to 6
-- [ ] Update generate button text
-- [ ] Display image result instead of video
+- [x] Adapt +page.svelte for collage UI
+- [x] Update section 2 from tracks to styles
+- [x] Change image limit from 20 to 6
+- [x] Update generate button text
+- [x] Display image result instead of video
 
 ### Phase 4: Testing & Polish
-- [ ] Test full flow locally
-- [ ] Test with various image sizes and counts
-- [ ] Verify image optimization is working
-- [ ] Test all 3 style presets
-- [ ] Test all 3 aspect ratios
+- [x] Test full flow locally
+- [x] Test with various image sizes and counts (2, 3, 4 images tested)
+- [x] Verify image optimization is working (95%+ size reduction)
+- [x] Test all 3 style presets (fridge, scrapbook, clean)
+- [x] Test all 3 aspect ratios (16:9, 1:1, 9:16)
 
 ### Phase 5: Deployment
-- [ ] Set up bowerbirder.pressive.in
-- [ ] Deploy to VPS
-- [ ] Configure Caddy reverse proxy
-- [ ] Test production
+- [x] Set up bowerbirder.pressive.in
+- [x] Deploy to VPS
+- [x] Configure Caddy reverse proxy
+- [x] Test production
 
 ## Future Enhancements (Not for V1)
 
