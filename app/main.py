@@ -15,7 +15,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel, Field
 import redis
 
-from app.config import STYLE_PRESETS, ASPECT_RATIOS, MIN_IMAGES, MAX_IMAGES
+from app.config import (
+    STYLE_PRESETS, ASPECT_RATIOS, MIN_IMAGES, MAX_IMAGES,
+    MAX_IMAGE_SIZE_MB, MAX_TOTAL_SIZE_MB, OUTPUT_EXPIRY_MINUTES, MAX_QUEUE_LENGTH
+)
 
 app = FastAPI(title="Bowerbirder API")
 
@@ -42,7 +45,6 @@ OUTPUT_DIR = settings.output_dir
 IMAGE_EXPIRY_MINUTES = settings.image_expiry_minutes
 API_ALLOWED_IPS = settings.allowed_ips_list
 JOB_IMAGES_DIR = settings.job_images_dir
-MAX_QUEUED_JOBS = 10
 
 
 def get_client_ip(request: Request) -> str:
@@ -126,7 +128,7 @@ def create_job(request: JobRequest):
     """Create a new collage generation job"""
     # Check queue backpressure
     queue_length = redis_client.llen("job_queue")
-    if queue_length >= MAX_QUEUED_JOBS:
+    if queue_length >= MAX_QUEUE_LENGTH:
         raise HTTPException(
             status_code=503,
             detail=f"Server busy ({queue_length} jobs queued). Try again later."
@@ -138,8 +140,6 @@ def create_job(request: JobRequest):
     if len(request.images) > MAX_IMAGES:
         raise HTTPException(status_code=400, detail=f"Maximum {MAX_IMAGES} images allowed")
 
-    MAX_IMAGE_SIZE_MB = 20
-    MAX_TOTAL_SIZE_MB = 100
     MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024
     MAX_TOTAL_SIZE = MAX_TOTAL_SIZE_MB * 1024 * 1024
     total_size = 0

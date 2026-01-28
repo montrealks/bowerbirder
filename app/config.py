@@ -4,6 +4,20 @@ Bowerbirder Configuration
 Style presets, output dimensions, and limits.
 """
 
+# =============================================================================
+# Unified constants (shared across Gooser, Ducker, Bowerbirder)
+# =============================================================================
+MIN_IMAGES = 2
+MAX_IMAGES = 20
+MAX_IMAGE_SIZE_MB = 20
+MAX_TOTAL_SIZE_MB = 250
+OUTPUT_EXPIRY_MINUTES = 30
+MAX_QUEUE_LENGTH = 10
+
+# =============================================================================
+# Project-specific constants
+# =============================================================================
+
 # Style presets with prompts for Nano Banana Pro
 STYLE_PRESETS = {
     "fridge": {
@@ -34,11 +48,3 @@ OUTPUT_DIMENSIONS = {
 OPTIMIZE_MAX_SIZE = 768  # Longest edge in pixels
 OPTIMIZE_QUALITY = 85    # JPEG quality (1-100)
 
-# Limits
-MIN_IMAGES = 2
-MAX_IMAGES = 6
-MAX_IMAGE_SIZE_MB = 20
-MAX_TOTAL_SIZE_MB = 100
-
-# Result expiry
-IMAGE_EXPIRY_MINUTES = 30
