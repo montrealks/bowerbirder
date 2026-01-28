@@ -25,7 +25,8 @@
     "@uppy/dashboard": "^4.0.0",
     "@uppy/drag-drop": "^4.0.0",
     "@uppy/image-editor": "^3.0.0",
-    "@uppy/svelte": "^4.0.0"
+    "@uppy/svelte": "^4.0.0",
+    "browser-image-compression": "^2.0.2"
   },
   "type": "module"
 }

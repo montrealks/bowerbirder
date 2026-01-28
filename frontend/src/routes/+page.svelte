@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import imageCompression from 'browser-image-compression';
 
 	// Types
 	interface UploadedFile {
@@ -349,12 +350,27 @@
 		throw new Error('Timeout waiting for collage');
 	}
 
-	function fileToBase64(file: File): Promise<string> {
+	async function fileToBase64(file: File | Blob): Promise<string> {
+		// Use browser-image-compression to fix EXIF orientation
+		// This draws the image to canvas (which applies EXIF rotation in modern browsers)
+		// and re-exports it, ensuring correct orientation
+		const fileToProcess = file instanceof File ? file : new File([file], 'image.jpg', { type: file.type });
+
+		const options = {
+			maxSizeMB: 10, // Don't compress much, just fix orientation
+			maxWidthOrHeight: 4096, // Keep high resolution
+			useWebWorker: true,
+			fileType: 'image/jpeg' as const,
+			exifOrientation: 1 // Reset EXIF orientation to normal
+		};
+
+		const compressedFile = await imageCompression(fileToProcess, options);
+
 		return new Promise((resolve, reject) => {
 			const reader = new FileReader();
 			reader.onload = () => resolve(reader.result as string);
 			reader.onerror = reject;
-			reader.readAsDataURL(file);
+			reader.readAsDataURL(compressedFile);
 		});
 	}
 
