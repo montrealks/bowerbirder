@@ -238,7 +238,10 @@
 	});
 
 	async function generateCollage() {
-		if (files.length < MIN_IMAGES) {
+		// Get fresh files directly from Uppy (cached files array can have stale File objects)
+		const uppyFiles = uppy?.getFiles() ?? [];
+
+		if (uppyFiles.length < MIN_IMAGES) {
 			status = `Please add at least ${MIN_IMAGES} images`;
 			statusType = 'error';
 			return;
@@ -256,8 +259,8 @@
 		try {
 			const imageUrls: string[] = [];
 
-			for (const file of files) {
-				const base64 = await fileToBase64(file.file);
+			for (const f of uppyFiles) {
+				const base64 = await fileToBase64(f.data as File);
 				imageUrls.push(base64);
 			}
 
