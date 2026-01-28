@@ -5,7 +5,7 @@ services:
   api:
     build: .
     ports:
-      - "8001:8000"
+      - "8002:8000"  # 8002 for Bowerbirder (Gooser=8000, Ducker=8001)
     volumes:
       - ./output:/app/output
       - job_images:/app/job_images

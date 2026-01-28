@@ -113,11 +113,11 @@ class JobResponse(BaseModel):
     error: Optional[str] = None
 ```
 
-- [ ] E1. Update Gooser: rename `result_url` to `output_url` in job responses
-- [ ] E2. Update Ducker: rename `video_url` to `output_url` in job responses
-- [ ] E3. Update Bowerbirder: rename `image_url` to `output_url` in job responses
-- [ ] E4. Update each frontend to read `output_url` instead of old field name
-- [ ] E5. Ensure all projects return `status_detail` during processing
+- [x] E1. Update Gooser: rename `result_url` to `output_url` in job responses
+- [x] E2. Update Ducker: rename `video_url` to `output_url` in job responses
+- [x] E3. Update Bowerbirder: rename `image_url` to `output_url` in job responses
+- [x] E4. Update each frontend to read `output_url` instead of old field name
+- [x] E5. Ensure all projects return `status_detail` during processing (already implemented)
 
 **Verification:** `curl /jobs/{id}` returns identical schema structure for all three
 
@@ -127,10 +127,10 @@ class JobResponse(BaseModel):
 
 Gooser is missing the `/aspect-ratios` endpoint that Ducker and Bowerbirder have.
 
-- [ ] F1. Research Ducker/Bowerbirder aspect-ratios endpoint implementation
-- [ ] F2. Add `GET /aspect-ratios` to Gooser main.py
-- [ ] F3. Add ASPECT_RATIOS constant to Gooser config.py if missing
-- [ ] F4. Update Gooser frontend to use aspect ratio selector (if applicable)
+- [x] F1. Research Ducker/Bowerbirder aspect-ratios endpoint implementation
+- [x] F2. Add `GET /aspect-ratios` to Gooser main.py
+- [x] F3. Add ASPECT_RATIOS constant to Gooser config.py if missing (already added in Task B)
+- [x] F4. Update Gooser frontend to use aspect ratio selector (N/A - Gooser uses different workflow)
 
 **Verification:** `curl /aspect-ratios` returns `["16:9", "1:1", "9:16"]` for all three
 
@@ -209,5 +209,15 @@ Document the standardized API contract for programmatic usage.
 - Updated Ducker and Bowerbirder frontends to fetch from /options
 - Gooser frontend unchanged (different workflow, no preset selection)
 - Commits: Gooser 941d392, Ducker 477f7e7, Bowerbirder 17e9179
+
+### Task E - Completed
+- Renamed result_url → output_url (Gooser), video_url → output_url (Ducker), image_url → output_url (Bowerbirder)
+- Updated all workers, main.py files, and frontends
+- Commits: Gooser 012b64b, Ducker 60166ad, Bowerbirder 801b4b4
+
+### Task F - Completed
+- Added GET /aspect-ratios endpoint to Gooser
+- Returns same format as Ducker/Bowerbirder: `{aspect_ratios: ["16:9", "1:1", "9:16"]}`
+- Commit: Gooser 2537265
 
 ---
