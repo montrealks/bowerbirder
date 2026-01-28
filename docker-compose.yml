@@ -1,0 +1,57 @@
+# Development Docker Compose
+# Usage: docker compose up -d
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+      # Dev mode: mount app package for hot reload
+      - ./app:/app/app
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-local}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - OUTPUT_DIR=${OUTPUT_DIR:-/app/output}
+      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
+      - API_ALLOWED_IPS=${API_ALLOWED_IPS:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build: .
+    command: python -m app.worker
+    volumes:
+      - ./output:/app/output
+      # Dev mode: mount app package for restart without rebuild
+      - ./app:/app/app
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-local}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - OUTPUT_DIR=${OUTPUT_DIR:-/app/output}
+      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:8000}
+      - FAL_KEY=${FAL_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
