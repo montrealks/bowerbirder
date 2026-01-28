@@ -215,7 +215,7 @@ cd frontend && npm run dev
 curl http://localhost:8000/health
 
 # List style presets
-curl http://localhost:8000/styles
+curl http://localhost:8000/options
 
 # List aspect ratios
 curl http://localhost:8000/aspect-ratios
@@ -226,7 +226,7 @@ curl http://localhost:8000/aspect-ratios
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/health` | Health check |
-| GET | `/styles` | List available style presets |
+| GET | `/options` | List available style presets |
 | GET | `/aspect-ratios` | List available aspect ratios |
 | POST | `/jobs` | Create new collage job |
 | GET | `/jobs/{job_id}` | Get job status |
