@@ -14,7 +14,7 @@ from pathlib import Path
 
 import redis
 import fal_client
-from PIL import Image
+from PIL import Image, ImageOps
 
 # Allow large images
 Image.MAX_IMAGE_PIXELS = 178956970
@@ -61,11 +61,15 @@ def update_job_status(job_id: str, status: str, **extra):
 def optimize_image(image_data: bytes) -> bytes:
     """Optimize image for API submission.
 
+    - Apply EXIF orientation (fix rotated phone photos)
     - Resize longest edge to 768px
     - Convert to JPEG at 85% quality
     - Strip metadata
     """
     img = Image.open(io.BytesIO(image_data))
+
+    # Apply EXIF orientation - fixes rotated phone photos
+    img = ImageOps.exif_transpose(img)
 
     # Convert to RGB if necessary (handles PNG with alpha, etc.)
     if img.mode in ('RGBA', 'P', 'LA', 'L'):
