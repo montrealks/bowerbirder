@@ -12,7 +12,7 @@ STYLE_PRESETS = {
     },
     "scrapbook": {
         "name": "Old Scrapbook",
-        "prompt": "Arrange these photos on a vintage scrapbook page with aged cream paper texture, washi tape, corner stickers, and nostalgic decorations"
+        "prompt": "Arrange these photos on a vintage scrapbook page with aged cream paper texture, simple washi tape to hold photos in place, minimal subtle decorations only, photos are the focus not the background, no flowers no stickers no nametags no keys, clean understated nostalgic feel"
     },
     "clean": {
         "name": "Clean",
