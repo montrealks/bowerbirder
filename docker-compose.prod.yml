@@ -5,7 +5,7 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8002:8000"  # 8002 to avoid conflict with Ducker on 8000
     volumes:
       - ./output:/app/output
       - job_images:/app/job_images
