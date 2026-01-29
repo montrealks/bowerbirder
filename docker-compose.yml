@@ -1,5 +1,6 @@
 # Development Docker Compose
 # Usage: docker compose up -d
+# Requires: shared-redis running (see /srv/redis)
 
 services:
   api:
@@ -13,14 +14,14 @@ services:
       - ./app:/app/app
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_URL=${REDIS_URL:-redis://shared-redis:6379}
       - OUTPUT_DIR=${OUTPUT_DIR:-/app/output}
       - JOB_IMAGES_DIR=${JOB_IMAGES_DIR:-/app/job_images}
       - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
       - API_ALLOWED_IPS=${API_ALLOWED_IPS:-}
-    depends_on:
-      redis:
-        condition: service_healthy
+    networks:
+      - default
+      - caddy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -39,27 +40,19 @@ services:
       - ./app:/app/app
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-local}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      - REDIS_URL=${REDIS_URL:-redis://shared-redis:6379}
       - OUTPUT_DIR=${OUTPUT_DIR:-/app/output}
       - JOB_IMAGES_DIR=${JOB_IMAGES_DIR:-/app/job_images}
       - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
-      - API_BASE_URL=${API_BASE_URL:-http://localhost:8001}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:8002}
       - FAL_KEY=${FAL_KEY:-}
-    depends_on:
-      redis:
-        condition: service_healthy
+    networks:
+      - default
+      - caddy
 
-  redis:
-    image: redis:alpine
-    # Port exposed only for debugging; containers use internal network
-    # ports:
-    #   - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 5s
+networks:
+  caddy:
+    external: true
 
 volumes:
   job_images:

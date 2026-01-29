@@ -5,7 +5,7 @@
 set -e
 
 VPS="vps"
-REMOTE_DIR="~/bowerbirder"
+REMOTE_DIR="/srv/bowerbirder"
 
 echo "Pulling latest code on VPS..."
 ssh $VPS "cd $REMOTE_DIR && git pull"
@@ -19,7 +19,7 @@ ssh $VPS "docker network connect caddy bowerbirder-api-1 2>/dev/null || true"
 # Rebuild frontend if --frontend flag is passed
 if [[ "$1" == "--frontend" ]]; then
     echo "Building and deploying frontend..."
-    ssh $VPS "cd $REMOTE_DIR/frontend && npm install && npm run build && cp -r build/* /srv/bowerbirder/frontend/"
+    ssh $VPS "cd /srv/bowerbirder/frontend && npm install && npm run build"
 fi
 
 echo "Checking health..."

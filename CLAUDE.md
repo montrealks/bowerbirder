@@ -14,14 +14,6 @@ Named after the bowerbird - nature's collage artist that collects and arranges c
 - **AI**: fal.ai Nano Banana Pro (`fal-ai/nano-banana-pro/edit`)
 - **Image Processing**: Pillow (PIL) for optimization before API calls
 
-## Project Template
-
-This project is based on **Ducker** (`~/Projects/ducker`). Copy the following from Ducker as starting points:
-- `docker-compose.yml` / `docker-compose.prod.yml`
-- `Dockerfile`
-- `frontend/` directory structure (SvelteKit 5)
-- Redis job queue pattern
-
 ## Architecture
 
 ```
@@ -310,73 +302,80 @@ Based on Ducker's UI with these changes:
 | `IMAGE_EXPIRY_MINUTES` | Result cleanup time | `30` |
 | `API_ALLOWED_IPS` | IP whitelist (production) | - |
 
-## Deployment
+## Server Architecture
 
-### VPS (bowerbirder.pressive.in)
+This project runs on a VPS at `bowerbirder.pressive.in` with the following infrastructure:
 
-**Quick deploy using script:**
-```bash
-./deploy.sh            # Backend only
-./deploy.sh --frontend # Backend + frontend rebuild
+### Directory Structure
+
+All apps follow the same flat structure under `/srv/`:
+
+```
+/srv/
+├── caddy/              # Reverse proxy (auto-HTTPS)
+├── redis/              # Shared Redis instance
+├── gooser/             # Group photo compositor
+├── ducker/             # Ken Burns video generator
+├── bowerbirder/        # This project
+├── magpier/            # Interactive collage builder
+└── modal-functions/    # Modal GPU functions
 ```
 
-**Manual deploy:**
-```bash
-# Push changes to GitHub
-git add . && git commit -m "message" && git push
-
-# On VPS: pull and rebuild
-ssh vps "cd ~/bowerbirder && git pull && docker compose -f docker-compose.prod.yml up -d --build"
-ssh vps "docker network connect caddy bowerbirder-api-1"
-
-# If frontend changed:
-ssh vps "cd ~/bowerbirder/frontend && npm run build && cp -r build/* /srv/bowerbirder/frontend/"
+Each app has a consistent structure:
+```
+/srv/{app}/
+├── app/                # Python backend
+├── frontend/           # SvelteKit frontend
+│   ├── src/            # Source code
+│   └── build/          # Built output (served by Caddy)
+├── docker-compose.yml  # Development config
+├── docker-compose.prod.yml  # Production config
+└── Dockerfile
 ```
 
-## Implementation Checklist
+### Shared Services
 
-### Phase 1: Project Setup
-- [x] Copy Ducker's docker-compose.yml and adapt
-- [x] Copy Ducker's Dockerfile and adapt
-- [x] Create requirements.txt (fastapi, redis, pillow, fal-client, httpx)
-- [x] Create .env.example
-- [x] Copy frontend structure from Ducker
+**Redis**: All apps use a single shared Redis instance (`shared-redis`) instead of per-app Redis containers.
+- Connection URL: `redis://shared-redis:6379`
+- Apps connect via the `caddy` Docker network
 
-### Phase 2: Backend
-- [x] Create app/config.py with style presets and constants
-- [x] Create app/main.py with FastAPI endpoints
-- [x] Create app/worker.py with image optimization and fal.ai integration
-- [x] Test API locally (endpoints work, job processing works, fal.ai integration needs FAL_KEY)
+**Caddy**: Reverse proxy with automatic HTTPS.
+- Routes API requests to FastAPI containers
+- Serves static frontend from `frontend/build/`
+- Config: `/srv/caddy/Caddyfile`
 
-### Phase 3: Frontend
-- [x] Adapt +page.svelte for collage UI
-- [x] Update section 2 from tracks to styles
-- [x] Change image limit from 20 to 6
-- [x] Update generate button text
-- [x] Display image result instead of video
+### Docker Networking
 
-### Phase 4: Testing & Polish
-- [x] Test full flow locally
-- [x] Test with various image sizes and counts (2, 3, 4 images tested)
-- [x] Verify image optimization is working (95%+ size reduction)
-- [x] Test all 3 style presets (fridge, scrapbook, clean)
-- [x] Test all 3 aspect ratios (16:9, 1:1, 9:16)
+All containers connect to the external `caddy` network:
+```yaml
+networks:
+  caddy:
+    external: true
+```
 
-### Phase 5: Deployment
-- [x] Set up bowerbirder.pressive.in
-- [x] Deploy to VPS
-- [x] Configure Caddy reverse proxy
-- [x] Test production
+### Deployment
 
-## Future Enhancements (Not for V1)
+**On VPS** (project is at `/srv/bowerbirder`):
 
-- Visual preview cards for style presets
-- Custom prompt input (advanced mode)
-- More style presets
-- Integration back into Route1Views Media Studio V2
+```bash
+# Start shared services first
+cd /srv/redis && docker compose up -d
+
+# Deploy this app
+cd /srv/bowerbirder && docker compose -f docker-compose.prod.yml up -d --build
+
+# Rebuild frontend if needed
+cd /srv/bowerbirder/frontend && npm install && npm run build
+```
+
+**Check logs:**
+```bash
+docker compose -f docker-compose.prod.yml logs --tail=50
+docker compose -f docker-compose.prod.yml logs -f worker  # Follow worker logs
+```
 
 ## Related Projects
 
-- **Ducker** (`~/Projects/ducker`) - Ken Burns video generator (template for this project)
-- **Gooser** (`~/Projects/gooser`) - Group photo compositor
-- **Route1Views Media Studio V2** - Where this will eventually integrate
+- **Gooser** (`/srv/gooser`) - Group photo compositor
+- **Ducker** (`/srv/ducker`) - Ken Burns video generator
+- **Magpier** (`/srv/magpier`) - Interactive collage builder
