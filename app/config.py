@@ -22,7 +22,7 @@ MAX_QUEUE_LENGTH = 10
 STYLE_PRESETS = {
     "fridge": {
         "name": "On the Fridge",
-        "prompt": "Tightly clustered photos pinned with colorful fruit-shaped magnets on a teal refrigerator door, photos overlapping each other significantly, filling most of the frame with minimal background visible, cozy family photo collage"
+        "prompt": "Place ONLY these exact {count} photos on a teal refrigerator door. Use ONLY the provided images, do NOT add any extra photos. Colorful fruit-shaped magnets pinning the photos. Close-up of fridge door filling the frame. Photos should be large and zoomed in, with little space between them, tightly clustered together. Show only {count} photos total - no more, no less."
     },
     "scrapbook": {
         "name": "Old Scrapbook",

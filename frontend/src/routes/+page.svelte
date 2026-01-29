@@ -322,7 +322,7 @@
 	}
 
 	async function pollJobStatus(jobId: string) {
-		const maxAttempts = 180; // 3 minutes max (collage generation can take a while)
+		const maxAttempts = 360; // 6 minutes max (collage generation + slow download can take a while)
 		let attempts = 0;
 
 		while (attempts < maxAttempts) {

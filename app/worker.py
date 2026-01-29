@@ -9,6 +9,7 @@ import base64
 import shutil
 import threading
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -146,28 +147,34 @@ def process_job(job_id: str):
             logger.info(f"[{job_id}] Optimized image {i+1}: "
                         f"{len(raw_bytes) // 1024}KB -> {len(optimized_bytes) // 1024}KB")
 
-        # Upload to fal.ai
+        # Upload to fal.ai (parallel for speed)
         update_job_status(job_id, "processing", status_detail="Uploading images...")
-        image_urls = []
 
-        for i, img_bytes in enumerate(optimized_images):
-            update_job_status(job_id, "processing",
-                              status_detail=f"Uploading image {i+1}/{len(optimized_images)}...")
+        def upload_with_index(args):
+            idx, img_bytes = args
             url = upload_to_fal(img_bytes)
-            image_urls.append(url)
-            logger.info(f"[{job_id}] Uploaded image {i+1}: {url[:60]}...")
+            return idx, url
 
-        # Get style prompt
+        image_urls = [None] * len(optimized_images)
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = [executor.submit(upload_with_index, (i, img))
+                      for i, img in enumerate(optimized_images)]
+            for future in as_completed(futures):
+                idx, url = future.result()
+                image_urls[idx] = url
+                logger.info(f"[{job_id}] Uploaded image {idx+1}: {url[:60]}...")
+
+        # Get style prompt and insert image count
         style_key = job.get("style", "fridge")
         style = STYLE_PRESETS.get(style_key, STYLE_PRESETS["fridge"])
-        prompt = style["prompt"]
+        prompt = style["prompt"].format(count=len(image_urls))
 
         # Call fal.ai API
         update_job_status(job_id, "processing", status_detail="Generating collage...")
         logger.info(f"[{job_id}] Calling fal.ai with {len(image_urls)} images, style: {style_key}")
 
         result = fal_client.subscribe(
-            "fal-ai/nano-banana-pro/edit",
+            "fal-ai/nano-banana/edit",
             arguments={
                 "prompt": prompt,
                 "image_urls": image_urls,
@@ -186,20 +193,19 @@ def process_job(job_id: str):
         result_url = images[0]["url"]
         logger.info(f"[{job_id}] Got result from fal.ai: {result_url[:60]}...")
 
-        # Download result image
+        # Download result image using streaming (handles large files better)
         update_job_status(job_id, "processing", status_detail="Downloading result...")
         import httpx
-        with httpx.Client(timeout=60.0) as client:
-            response = client.get(result_url)
-            response.raise_for_status()
-            result_bytes = response.content
-
-        # Save to output directory
         output_path = os.path.join(OUTPUT_DIR, f"{job_id}.png")
-        with open(output_path, "wb") as f:
-            f.write(result_bytes)
+        with httpx.Client(timeout=httpx.Timeout(10.0, read=300.0)) as client:
+            with client.stream("GET", result_url) as response:
+                response.raise_for_status()
+                with open(output_path, "wb") as f:
+                    for chunk in response.iter_bytes(chunk_size=8192):
+                        f.write(chunk)
 
-        logger.info(f"[{job_id}] Saved result to {output_path} ({len(result_bytes) // 1024}KB)")
+        file_size = os.path.getsize(output_path)
+        logger.info(f"[{job_id}] Saved result to {output_path} ({file_size // 1024}KB)")
 
         # Update job status
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=IMAGE_EXPIRY_MINUTES)
