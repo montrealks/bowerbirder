@@ -1,0 +1,28 @@
+name: Deploy to VPS
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Deploys this service on the pressive.in VPS via Tailscale + SSH.
+# GH Actions runner joins the tailnet, then SSHes to the VPS and runs deploy.sh
+# which does: git pull + docker compose up -d --build (per /srv/bowerbirder/deploy.sh).
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TS_AUTH_KEY }}
+
+      - name: Run deploy.sh on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 100.96.57.39
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /srv/bowerbirder
+            ./deploy.sh
