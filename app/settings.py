@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     # Security
     api_allowed_ips: str = ""  # Comma-separated
 
+    # Rate limiting for the anonymous, expensive /jobs endpoint.
+    # All knobs are configurable via env / .env.
+    rate_limit_enabled: bool = True
+    rate_limit_per_minute: int = 5      # max job submissions per IP per rolling minute
+    rate_limit_per_hour: int = 30       # max job submissions per IP per rolling hour
+    rate_limit_per_day: int = 100       # hard daily cap per IP
+
     @property
     def allowed_ips_list(self) -> list[str]:
         """Parse comma-separated IPs into list"""

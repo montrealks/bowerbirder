@@ -5,19 +5,22 @@
 services:
   api:
     build: .
-    ports:
-      - "8002:8000"  # 8002 to avoid conflict with Ducker on 8000
+    # Port intentionally NOT published — Caddy reaches this container over
+    # the internal `caddy` docker network (bowerbirder-api-1:8000). A
+    # host-published port bypasses the Cloudflare-only origin firewall.
     volumes:
       - ./output:/app/output
       - job_images:/app/job_images
+    env_file:
+      - /root/.secrets.env
+      - .env
     environment:
       - ENVIRONMENT=production
       - REDIS_URL=redis://shared-redis:6379
       - OUTPUT_DIR=/app/output
       - JOB_IMAGES_DIR=/app/job_images
-      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
-      - API_BASE_URL=${API_BASE_URL:-https://bowerbirder.pressive.in}
-      - API_ALLOWED_IPS=${API_ALLOWED_IPS:-}
+      - API_BASE_URL=https://bowerbirder.pressive.in
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -34,14 +37,15 @@ services:
     volumes:
       - ./output:/app/output
       - job_images:/app/job_images
+    env_file:
+      - /root/.secrets.env
+      - .env
     environment:
       - ENVIRONMENT=production
       - REDIS_URL=redis://shared-redis:6379
       - OUTPUT_DIR=/app/output
       - JOB_IMAGES_DIR=/app/job_images
-      - IMAGE_EXPIRY_MINUTES=${IMAGE_EXPIRY_MINUTES:-30}
-      - API_BASE_URL=${API_BASE_URL:-https://bowerbirder.pressive.in}
-      - FAL_KEY=${FAL_KEY}
+      - API_BASE_URL=https://bowerbirder.pressive.in
     restart: unless-stopped
     networks:
       - caddy

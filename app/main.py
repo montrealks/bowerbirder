@@ -19,6 +19,7 @@ from app.config import (
     STYLE_PRESETS, ASPECT_RATIOS, MIN_IMAGES, MAX_IMAGES,
     MAX_IMAGE_SIZE_MB, MAX_TOTAL_SIZE_MB, OUTPUT_EXPIRY_MINUTES, MAX_QUEUE_LENGTH
 )
+from app.ratelimit import check_rate_limit, get_trusted_client_ip
 
 app = FastAPI(title="Bowerbirder API")
 
@@ -46,18 +47,21 @@ IMAGE_EXPIRY_MINUTES = settings.image_expiry_minutes
 API_ALLOWED_IPS = settings.allowed_ips_list
 JOB_IMAGES_DIR = settings.job_images_dir
 
+# Rate limiting (anonymous expensive /jobs endpoint)
+RATE_LIMIT_ENABLED = settings.rate_limit_enabled
+RATE_LIMIT_PER_MINUTE = settings.rate_limit_per_minute
+RATE_LIMIT_PER_HOUR = settings.rate_limit_per_hour
+RATE_LIMIT_PER_DAY = settings.rate_limit_per_day
+
 
 def get_client_ip(request: Request) -> str:
-    """Extract client IP, handling X-Forwarded-For for reverse proxies"""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
+    """Return the real, non-spoofable client IP.
 
-    real_ip = request.headers.get("x-real-ip")
-    if real_ip:
-        return real_ip.strip()
-
-    return request.client.host if request.client else "unknown"
+    Uses the trusted X-Real-IP / CF-Connecting-IP header set by the Caddy
+    edge from Cloudflare's verified Cf-Connecting-Ip. Raw X-Forwarded-For
+    is client-spoofable and is no longer trusted.
+    """
+    return get_trusted_client_ip(request)
 
 
 class IPWhitelistMiddleware(BaseHTTPMiddleware):
@@ -122,10 +126,29 @@ def list_aspect_ratios():
 
 
 @app.post("/jobs", response_model=JobResponse)
-def create_job(request: JobRequest):
+def create_job(request: JobRequest, http_request: Request):
     """Create a new collage generation job"""
+    # Per-IP rate limiting on this anonymous, expensive endpoint so cost
+    # cannot be amplified. Uses the trusted real client IP.
+    if RATE_LIMIT_ENABLED:
+        client_ip = get_client_ip(http_request)
+        rl = check_rate_limit(
+            redis_client,
+            client_ip,
+            prefix="bowerbirder",
+            per_minute=RATE_LIMIT_PER_MINUTE,
+            per_hour=RATE_LIMIT_PER_HOUR,
+            per_day=RATE_LIMIT_PER_DAY,
+        )
+        if not rl.allowed:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded ({rl.limit} per {rl.scope}). Retry in {rl.retry_after}s.",
+                headers={"Retry-After": str(rl.retry_after)},
+            )
+
     # Check queue backpressure
-    queue_length = redis_client.llen("job_queue")
+    queue_length = redis_client.llen("bowerbirder_job_queue")
     if queue_length >= MAX_QUEUE_LENGTH:
         raise HTTPException(
             status_code=503,
@@ -198,7 +221,7 @@ def create_job(request: JobRequest):
 
     job_ttl_seconds = IMAGE_EXPIRY_MINUTES * 2 * 60
     redis_client.setex(f"job:{job_id}", job_ttl_seconds, json.dumps(job_data))
-    redis_client.lpush("job_queue", job_id)
+    redis_client.lpush("bowerbirder_job_queue", job_id)
 
     return JobResponse(job_id=job_id, status="queued")
 

@@ -286,7 +286,7 @@ def main():
 
     while not _shutdown_event.is_set():
         try:
-            result = redis_client.brpop("job_queue", timeout=5)
+            result = redis_client.brpop("bowerbirder_job_queue", timeout=5)
 
             if result and not _shutdown_event.is_set():
                 _, job_id = result
